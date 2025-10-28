@@ -1,34 +1,9 @@
-// === CONFIGURACIÓN ===
+// =======================
+// CONFIGURACIÓN
+// =======================
 const scriptURL = "https://script.google.com/macros/s/AKfycbx9b0IWIYrU-luq3wjPKij6Q_ldUB8st0iW6CX37to1R1TPNzhoJHxeMwiT7KwE5dh0KA/exec";
 const sheetURL  = "https://docs.google.com/spreadsheets/d/1mGoGQXWjT3_fb2d271m8kXG8PfsLG3iD_ZLelYXWjf0/edit?gid=0#gid=0";
 
-// === LISTA DE PROXIES CORS ===
-// El script probará cada uno hasta que encuentre uno funcional.
-const PROXIES = [
-  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://thingproxy.freeboard.io/fetch/${url}`,
-  url => `https://yacdn.org/proxy/${url}`
-];
-
-// === FUNCIONES AUXILIARES ===
-
-// Intenta hacer un fetch con varios proxies hasta que funcione
-async function fetchConProxy(url, options = {}) {
-  for (let crearURL of PROXIES) {
-    const proxyURL = crearURL(url);
-    try {
-      const res = await fetch(proxyURL, options);
-      if (!res.ok) throw new Error(`Proxy respondió con estado ${res.status}`);
-      return res;
-    } catch (err) {
-      console.warn(`⚠️ Proxy falló: ${proxyURL}`, err);
-    }
-  }
-  throw new Error("❌ Ningún proxy CORS respondió correctamente.");
-}
-
-// === ELEMENTOS DEL DOM ===
 const form = document.getElementById("boletaForm");
 const mensaje = document.getElementById("mensaje");
 const tablaBody = document.querySelector("#tablaBoletas tbody");
@@ -42,29 +17,36 @@ const filtroEstado = document.getElementById("filtroEstado");
 let todasLasBoletas = [];
 
 // =======================
-// Registrar boleta (POST)
+// HELPER: usar proxy AllOrigins
+// =======================
+function fetchConProxy(url, options = {}) {
+  const proxyURL = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+  return fetch(proxyURL, options);
+}
+
+// =======================
+// REGISTRAR BOLETA (POST)
 // =======================
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
 
+  // Validación simple
   if (!data.grupo || !data.numero) {
     mensaje.textContent = "⚠️ Debes llenar Grupo y Número.";
     return;
   }
-
   data.numero = Number(data.numero) || 0;
+
   mensaje.textContent = "Registrando...";
 
   try {
-    const res = await fetchConProxy(scriptURL, {
+    const res = await fetch(scriptURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
-
-    const text = await res.text();
-    const result = JSON.parse(text || "{}");
+    const result = await res.json();
 
     if (result.error) {
       mensaje.textContent = "⚠️ " + result.error;
@@ -74,21 +56,21 @@ form.addEventListener("submit", async (e) => {
       cargarBoletas();
     }
   } catch (err) {
-    console.error("Error al registrar:", err);
+    console.error(err);
     mensaje.textContent = "⚠️ Error al registrar. Revisa la consola.";
   }
 });
 
 // =======================
-// Cargar boletas (GET)
+// CARGAR BOLETAS (GET)
 // =======================
 async function cargarBoletas() {
   tablaBody.innerHTML = "<tr><td colspan='9'>Cargando...</td></tr>";
   try {
+    // Usar proxy para evitar CORS
     const res = await fetchConProxy(scriptURL);
-    const text = await res.text();
-
-    todasLasBoletas = JSON.parse(text);
+    if (!res.ok) throw new Error("No se pudo obtener la información.");
+    todasLasBoletas = await res.json();
     mostrarBoletas(todasLasBoletas);
   } catch (err) {
     console.error("Error al cargar datos:", err);
@@ -98,7 +80,7 @@ async function cargarBoletas() {
 }
 
 // =======================
-// Mostrar boletas en tabla
+// MOSTRAR BOLETAS EN TABLA
 // =======================
 function mostrarBoletas(data) {
   tablaBody.innerHTML = "";
@@ -140,14 +122,14 @@ function mostrarBoletas(data) {
 }
 
 // =======================
-// Filtros en tiempo real
+// FILTROS EN TIEMPO REAL
 // =======================
 [filtroGrupo, filtroTipo, filtroEstado].forEach(el =>
   el.addEventListener("input", () => mostrarBoletas(todasLasBoletas))
 );
 
 // =======================
-// Botones de acción
+// BOTONES DE ACCIÓN
 // =======================
 btnExportar.addEventListener("click", () => {
   window.open(sheetURL, "_blank");
@@ -156,6 +138,6 @@ btnExportar.addEventListener("click", () => {
 btnRecargar.addEventListener("click", cargarBoletas);
 
 // =======================
-// Cargar tabla al iniciar
+// CARGAR TABLA AL INICIAR
 // =======================
 window.addEventListener("load", cargarBoletas);
