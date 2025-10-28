@@ -1,5 +1,5 @@
 const scriptURL = "https://script.google.com/macros/s/AKfycbx9b0IWIYrU-luq3wjPKij6Q_ldUB8st0iW6CX37to1R1TPNzhoJHxeMwiT7KwE5dh0KA/exec";
-const sheetURL  = "https://docs.google.com/spreadsheets/d/1mGoGQXWjT3_fb2d271m8kXG8PfsLG3iD_ZLelYXWjf0/edit?gid=0#gid=0"; // <- pega aquí el enlace de tu hoja
+const sheetURL  = "https://docs.google.com/spreadsheets/d/1mGoGQXWjT3_fb2d271m8kXG8PfsLG3iD_ZLelYXWjf0/edit?gid=0";
 
 const form = document.getElementById("boletaForm");
 const mensaje = document.getElementById("mensaje");
@@ -19,12 +19,17 @@ form.addEventListener("submit", async (e) => {
   const data = Object.fromEntries(new FormData(form).entries());
   mensaje.textContent = "Registrando...";
   try {
-    const res = await fetch(scriptURL, { method: "POST", body: JSON.stringify(data) });
+    const res = await fetch(scriptURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }, // ✅ corregido
+      body: JSON.stringify(data)
+    });
     const result = await res.json();
     mensaje.textContent = result.message || "✅ Boleta registrada.";
     form.reset();
     cargarBoletas();
-  } catch {
+  } catch (err) {
+    console.error(err);
     mensaje.textContent = "⚠️ Error al registrar.";
   }
 });
@@ -36,11 +41,13 @@ async function cargarBoletas() {
     const res = await fetch(scriptURL);
     todasLasBoletas = await res.json();
     mostrarBoletas(todasLasBoletas);
-  } catch {
+  } catch (err) {
+    console.error(err);
     tablaBody.innerHTML = "<tr><td colspan='9'>⚠️ Error al cargar datos</td></tr>";
   }
 }
 
+// Mostrar boletas en tabla
 function mostrarBoletas(data) {
   tablaBody.innerHTML = "";
   const g = filtroGrupo.value.toLowerCase();
@@ -60,7 +67,18 @@ function mostrarBoletas(data) {
 
   filtradas.forEach(r => {
     const tr = document.createElement("tr");
-    Object.values(r).forEach(v => {
+    const valores = [
+      r.id ?? "",
+      r.grupo ?? "",
+      r.numero ?? "",
+      r.comprador ?? "",
+      r.telefono ?? "",
+      r.vendedor ?? "",
+      r.estado ?? "",
+      r.tipo ?? "",
+      r.fecha ?? ""
+    ];
+    valores.forEach(v => {
       const td = document.createElement("td");
       td.textContent = v;
       tr.appendChild(td);
@@ -81,4 +99,8 @@ btnExportar.addEventListener("click", () => {
 
 // Recargar
 btnRecargar.addEventListener("click", cargarBoletas);
+
+// Cargar tabla al iniciar
 window.addEventListener("load", cargarBoletas);
+
+
