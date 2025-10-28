@@ -1,6 +1,13 @@
+// === CONFIGURACIÓN ===
 const scriptURL = "https://script.google.com/macros/s/AKfycbx9b0IWIYrU-luq3wjPKij6Q_ldUB8st0iW6CX37to1R1TPNzhoJHxeMwiT7KwE5dh0KA/exec";
 const sheetURL  = "https://docs.google.com/spreadsheets/d/1mGoGQXWjT3_fb2d271m8kXG8PfsLG3iD_ZLelYXWjf0/edit?gid=0#gid=0";
 
+// Proxy para evitar CORS (funciona con GitHub Pages)
+function usarProxy(url) {
+  return `https://corsproxy.io/?${encodeURIComponent(url)}`;
+}
+
+// === ELEMENTOS DEL DOM ===
 const form = document.getElementById("boletaForm");
 const mensaje = document.getElementById("mensaje");
 const tablaBody = document.querySelector("#tablaBoletas tbody");
@@ -20,22 +27,22 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
 
-  // Validación simple
   if (!data.grupo || !data.numero) {
     mensaje.textContent = "⚠️ Debes llenar Grupo y Número.";
     return;
   }
   data.numero = Number(data.numero) || 0;
-
   mensaje.textContent = "Registrando...";
 
   try {
-    const res = await fetch(scriptURL, {
+    const res = await fetch(usarProxy(scriptURL), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
-    const result = await res.json();
+
+    const text = await res.text();
+    const result = JSON.parse(text || "{}");
 
     if (result.error) {
       mensaje.textContent = "⚠️ " + result.error;
@@ -45,7 +52,7 @@ form.addEventListener("submit", async (e) => {
       cargarBoletas();
     }
   } catch (err) {
-    console.error(err);
+    console.error("Error al registrar:", err);
     mensaje.textContent = "⚠️ Error al registrar. Revisa la consola.";
   }
 });
@@ -56,12 +63,12 @@ form.addEventListener("submit", async (e) => {
 async function cargarBoletas() {
   tablaBody.innerHTML = "<tr><td colspan='9'>Cargando...</td></tr>";
   try {
-    const res = await fetch(scriptURL);
-    if (!res.ok) throw new Error("No se pudo obtener la información.");
-    todasLasBoletas = await res.json();
+    const res = await fetch(usarProxy(scriptURL));
+    const text = await res.text();
+    todasLasBoletas = JSON.parse(text);
     mostrarBoletas(todasLasBoletas);
   } catch (err) {
-    console.error(err);
+    console.error("Error al cargar datos:", err);
     tablaBody.innerHTML = "<tr><td colspan='9'>⚠️ Error al cargar datos</td></tr>";
     mensaje.textContent = "⚠️ Error al cargar datos. Revisa la consola.";
   }
