@@ -1,64 +1,61 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bingo Profesional</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Boletas Bingo</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>🎟️ Bingo Profesional</h1>
-    <p>Gestión de 1000 boletas — Valor: $50.000</p>
-  </header>
+  <div class="container">
+    <h1>🎟️ Registro de Boletas Bingo</h1>
 
-  <main>
-    <section class="panel">
-      <h2>Registrar Venta</h2>
-      <form id="formBoleta">
-        <input type="number" id="numero" placeholder="Número de boleta (1-1000)" min="1" max="1000" required />
-        <input type="text" id="vendedor" placeholder="Vendedor / Grupo" required />
-        <input type="text" id="comprador" placeholder="Comprador" required />
-        <input type="text" id="telefono" placeholder="Teléfono" />
-        <button type="submit">Registrar</button>
-      </form>
-    </section>
-
-    <section class="panel">
-      <h2>Buscar Boleta</h2>
-      <div class="buscar">
-        <input type="number" id="buscarNumero" placeholder="Número de boleta" />
-        <button onclick="buscarBoleta()">Buscar</button>
+    <form id="boletaForm">
+      <div class="form-group"><label>Grupo</label><input name="grupo" required></div>
+      <div class="form-group"><label>Número</label><input name="numero" type="number" required></div>
+      <div class="form-group"><label>Comprador</label><input name="comprador"></div>
+      <div class="form-group"><label>Teléfono</label><input name="telefono"></div>
+      <div class="form-group"><label>Vendedor</label><input name="vendedor"></div>
+      <div class="form-group"><label>Estado</label>
+        <select name="estado"><option>Sí</option><option>No</option></select>
       </div>
-      <pre id="resultadoBuscar"></pre>
-    </section>
+      <div class="form-group"><label>Tipo</label>
+        <select name="tipo">
+          <option>Comprada</option><option>Regalada</option><option>Debe</option>
+        </select>
+      </div>
+      <button type="submit">Registrar Boleta</button>
+    </form>
 
-    <section class="panel">
-      <h2>Resumen</h2>
-      <button onclick="mostrarResumen()">Actualizar Resumen</button>
-      <div id="resumen" class="resumen"></div>
-    </section>
+    <div class="actions">
+      <button id="exportar">📤 Exportar a Excel</button>
+      <button id="recargar">🔄 Actualizar Tabla</button>
+    </div>
+    <div id="mensaje"></div>
 
-    <section class="panel">
-      <h2>Lista de Boletas Vendidas</h2>
-      <table id="tablaBoletas">
-        <thead>
-          <tr>
-            <th>N°</th>
-            <th>Vendedor</th>
-            <th>Comprador</th>
-            <th>Teléfono</th>
-            <th>Vendida</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </main>
+    <h2>📋 Boletas Registradas</h2>
+    <div class="filters">
+      <input id="filtroGrupo" placeholder="Filtrar por grupo">
+      <select id="filtroTipo">
+        <option value="">Todos los tipos</option>
+        <option>Comprada</option><option>Regalada</option><option>Debe</option>
+      </select>
+      <select id="filtroEstado">
+        <option value="">Todos los estados</option>
+        <option>Sí</option><option>No</option>
+      </select>
+    </div>
 
-  <footer>
-    <p>Hecho con 💙 por ingeniero sergiolex — Sistema de Bingo Profesional</p>
-  </footer>
+    <table id="tablaBoletas">
+      <thead>
+        <tr>
+          <th>ID</th><th>Grupo</th><th>Número</th><th>Comprador</th>
+          <th>Teléfono</th><th>Vendedor</th><th>Estado</th><th>Tipo</th><th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script src="script.js"></script>
 </body>
