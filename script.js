@@ -1,4 +1,4 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbzWuJto_5S6mxdWvVlgS2emgOyPIFOQBiVS7Msy5VqclqNr49ru_bQAoBxaXrNYMrgi9A/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbxKJpYwvmkkA9f1-qGINmIhuKIAVGJIoRR7aLt6Jfz7pDzOzj8PX7h7qW3fvsqPBiaj5Q/exec";
 const sheetURL  = "https://docs.google.com/spreadsheets/d/1kXXXXXXXXXXXXXX/edit#gid=0"; // <- pega aquí el enlace de tu hoja
 
 const form = document.getElementById("boletaForm");
