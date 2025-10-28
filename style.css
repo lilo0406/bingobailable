@@ -1,86 +1,45 @@
 body {
-  font-family: "Poppins", sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f7f9fb;
   margin: 0;
-  background-color: #f4f6f8;
-  color: #222;
 }
-
-header {
-  background: linear-gradient(90deg, #0d3b66, #0d6b3b);
-  color: white;
-  padding: 20px;
-  text-align: center;
+.container {
+  max-width: 950px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,.1);
 }
-
-h1 {
-  margin: 0;
-  font-size: 2rem;
-}
-
-main {
+h1, h2 { text-align: center; color: #333; }
+form {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding: 20px;
-}
-
-.panel {
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
-
-form, .buscar {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
   gap: 10px;
 }
-
-input, button {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
+.form-group { display: flex; flex-direction: column; }
+label { font-weight: 600; margin-bottom: 4px; }
+input, select {
+  padding: 7px; border: 1px solid #ccc; border-radius: 6px;
 }
-
 button {
-  background-color: #0d6b3b;
-  color: white;
-  cursor: pointer;
-  transition: 0.3s;
+  background: #0077cc; color: #fff; border: none;
+  padding: 9px 15px; border-radius: 6px; cursor: pointer;
 }
+button:hover { background: #005fa3; }
+.actions { display: flex; gap: 10px; margin-top: 15px; }
+#mensaje { text-align: center; font-weight: bold; margin-top: 10px; }
 
-button:hover {
-  background-color: #0b5130;
+.filters {
+  display: flex; gap: 10px; margin: 15px 0; justify-content: center;
+}
+.filters input, .filters select {
+  padding: 6px; border-radius: 5px; border: 1px solid #ccc;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+  width: 100%; border-collapse: collapse; font-size: 14px;
 }
-
-th {
-  background-color: #0d3b66;
-  color: white;
-}
-
-th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
-}
-
-footer {
-  text-align: center;
-  padding: 15px;
-  background-color: #0d3b66;
-  color: white;
-}
-
-@media (max-width: 900px) {
-  main {
-    grid-template-columns: 1fr;
-  }
-}
+th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+th { background: #f2f2f2; }
+tr:nth-child(even) { background: #fafafa; }
