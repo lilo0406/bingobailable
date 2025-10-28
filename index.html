@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bingo Profesional</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🎟️ Bingo Profesional</h1>
+    <p>Gestión de 1000 boletas — Valor: $50.000</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Registrar Venta</h2>
+      <form id="formBoleta">
+        <input type="number" id="numero" placeholder="Número de boleta (1-1000)" min="1" max="1000" required />
+        <input type="text" id="vendedor" placeholder="Vendedor / Grupo" required />
+        <input type="text" id="comprador" placeholder="Comprador" required />
+        <input type="text" id="telefono" placeholder="Teléfono" />
+        <button type="submit">Registrar</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Buscar Boleta</h2>
+      <div class="buscar">
+        <input type="number" id="buscarNumero" placeholder="Número de boleta" />
+        <button onclick="buscarBoleta()">Buscar</button>
+      </div>
+      <pre id="resultadoBuscar"></pre>
+    </section>
+
+    <section class="panel">
+      <h2>Resumen</h2>
+      <button onclick="mostrarResumen()">Actualizar Resumen</button>
+      <div id="resumen" class="resumen"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Lista de Boletas Vendidas</h2>
+      <table id="tablaBoletas">
+        <thead>
+          <tr>
+            <th>N°</th>
+            <th>Vendedor</th>
+            <th>Comprador</th>
+            <th>Teléfono</th>
+            <th>Vendida</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>Hecho con 💙 por Lorena — Sistema de Bingo Profesional</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
