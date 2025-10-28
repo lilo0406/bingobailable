@@ -2,9 +2,30 @@
 const scriptURL = "https://script.google.com/macros/s/AKfycbx9b0IWIYrU-luq3wjPKij6Q_ldUB8st0iW6CX37to1R1TPNzhoJHxeMwiT7KwE5dh0KA/exec";
 const sheetURL  = "https://docs.google.com/spreadsheets/d/1mGoGQXWjT3_fb2d271m8kXG8PfsLG3iD_ZLelYXWjf0/edit?gid=0#gid=0";
 
-// Proxy para evitar CORS (funciona con GitHub Pages)
-function usarProxy(url) {
-  return `https://corsproxy.io/?${encodeURIComponent(url)}`;
+// === LISTA DE PROXIES CORS ===
+// El script probará cada uno hasta que encuentre uno funcional.
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+  url => `https://yacdn.org/proxy/${url}`
+];
+
+// === FUNCIONES AUXILIARES ===
+
+// Intenta hacer un fetch con varios proxies hasta que funcione
+async function fetchConProxy(url, options = {}) {
+  for (let crearURL of PROXIES) {
+    const proxyURL = crearURL(url);
+    try {
+      const res = await fetch(proxyURL, options);
+      if (!res.ok) throw new Error(`Proxy respondió con estado ${res.status}`);
+      return res;
+    } catch (err) {
+      console.warn(`⚠️ Proxy falló: ${proxyURL}`, err);
+    }
+  }
+  throw new Error("❌ Ningún proxy CORS respondió correctamente.");
 }
 
 // === ELEMENTOS DEL DOM ===
@@ -31,11 +52,12 @@ form.addEventListener("submit", async (e) => {
     mensaje.textContent = "⚠️ Debes llenar Grupo y Número.";
     return;
   }
+
   data.numero = Number(data.numero) || 0;
   mensaje.textContent = "Registrando...";
 
   try {
-    const res = await fetch(usarProxy(scriptURL), {
+    const res = await fetchConProxy(scriptURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
@@ -63,8 +85,9 @@ form.addEventListener("submit", async (e) => {
 async function cargarBoletas() {
   tablaBody.innerHTML = "<tr><td colspan='9'>Cargando...</td></tr>";
   try {
-    const res = await fetch(usarProxy(scriptURL));
+    const res = await fetchConProxy(scriptURL);
     const text = await res.text();
+
     todasLasBoletas = JSON.parse(text);
     mostrarBoletas(todasLasBoletas);
   } catch (err) {
