@@ -1,78 +1,84 @@
-const valorBoleta = 50000;
-let boletas = JSON.parse(localStorage.getItem("boletas")) || [];
+const scriptURL = "https://script.google.com/macros/s/AKfycbzEb8RVnBmYWz3M4Burbd9zC2YKlW3luySnHEQqUmX3h804WWKqtcaSS3DPsDN05szqzQ/exec";
+const sheetURL  = "https://docs.google.com/spreadsheets/d/1kXXXXXXXXXXXXXX/edit#gid=0"; // <- pega aquí el enlace de tu hoja
 
-document.getElementById("formBoleta").addEventListener("submit", (e) => {
+const form = document.getElementById("boletaForm");
+const mensaje = document.getElementById("mensaje");
+const tablaBody = document.querySelector("#tablaBoletas tbody");
+const btnExportar = document.getElementById("exportar");
+const btnRecargar = document.getElementById("recargar");
+
+const filtroGrupo = document.getElementById("filtroGrupo");
+const filtroTipo = document.getElementById("filtroTipo");
+const filtroEstado = document.getElementById("filtroEstado");
+
+let todasLasBoletas = [];
+
+// Registrar boleta
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
-  const numero = parseInt(document.getElementById("numero").value);
-  const vendedor = document.getElementById("vendedor").value;
-  const comprador = document.getElementById("comprador").value;
-  const telefono = document.getElementById("telefono").value;
-
-  if (numero < 1 || numero > 1000) {
-    alert("Número de boleta fuera del rango (1-1000)");
-    return;
+  const data = Object.fromEntries(new FormData(form).entries());
+  mensaje.textContent = "Registrando...";
+  try {
+    const res = await fetch(scriptURL, { method: "POST", body: JSON.stringify(data) });
+    const result = await res.json();
+    mensaje.textContent = result.message || "✅ Boleta registrada.";
+    form.reset();
+    cargarBoletas();
+  } catch {
+    mensaje.textContent = "⚠️ Error al registrar.";
   }
-
-  const existente = boletas.find((b) => b.numero === numero);
-  if (existente) {
-    alert("Esa boleta ya fue registrada.");
-    return;
-  }
-
-  const boleta = { numero, vendedor, comprador, telefono, vendida: "Sí" };
-  boletas.push(boleta);
-  localStorage.setItem("boletas", JSON.stringify(boletas));
-
-  actualizarTabla();
-  e.target.reset();
-  alert("✅ Boleta registrada correctamente.");
 });
 
-function buscarBoleta() {
-  const num = parseInt(document.getElementById("buscarNumero").value);
-  const boleta = boletas.find((b) => b.numero === num);
-  const res = document.getElementById("resultadoBuscar");
-  if (!boleta) {
-    res.textContent = "❌ No se encontró esa boleta.";
-  } else {
-    res.textContent = `🎟️ Boleta N° ${boleta.numero}
-Vendedor: ${boleta.vendedor}
-Comprador: ${boleta.comprador}
-Teléfono: ${boleta.telefono}
-Vendida: ${boleta.vendida}`;
+// Cargar boletas
+async function cargarBoletas() {
+  tablaBody.innerHTML = "<tr><td colspan='9'>Cargando...</td></tr>";
+  try {
+    const res = await fetch(scriptURL);
+    todasLasBoletas = await res.json();
+    mostrarBoletas(todasLasBoletas);
+  } catch {
+    tablaBody.innerHTML = "<tr><td colspan='9'>⚠️ Error al cargar datos</td></tr>";
   }
 }
 
-function mostrarResumen() {
-  const total = 1000;
-  const vendidas = boletas.length;
-  const noVendidas = total - vendidas;
-  const totalRecaudado = vendidas * valorBoleta;
+function mostrarBoletas(data) {
+  tablaBody.innerHTML = "";
+  const g = filtroGrupo.value.toLowerCase();
+  const t = filtroTipo.value;
+  const e = filtroEstado.value;
 
-  const resumen = `
-Total boletas: ${total}
-Vendidas: ${vendidas}
-No vendidas: ${noVendidas}
-💰 Total recaudado: $${totalRecaudado.toLocaleString()}
-`;
-  document.getElementById("resumen").textContent = resumen;
-}
+  const filtradas = data.filter(r =>
+    r.grupo.toLowerCase().includes(g) &&
+    (t ? r.tipo === t : true) &&
+    (e ? r.estado === e : true)
+  );
 
-function actualizarTabla() {
-  const tbody = document.querySelector("#tablaBoletas tbody");
-  tbody.innerHTML = "";
-  boletas.forEach((b) => {
+  if (!filtradas.length) {
+    tablaBody.innerHTML = "<tr><td colspan='9'>No hay resultados</td></tr>";
+    return;
+  }
+
+  filtradas.forEach(r => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${b.numero}</td>
-      <td>${b.vendedor}</td>
-      <td>${b.comprador}</td>
-      <td>${b.telefono}</td>
-      <td>${b.vendida}</td>
-    `;
-    tbody.appendChild(tr);
+    Object.values(r).forEach(v => {
+      const td = document.createElement("td");
+      td.textContent = v;
+      tr.appendChild(td);
+    });
+    tablaBody.appendChild(tr);
   });
 }
 
-window.onload = actualizarTabla;
+// Filtros
+[filtroGrupo, filtroTipo, filtroEstado].forEach(el =>
+  el.addEventListener("input", () => mostrarBoletas(todasLasBoletas))
+);
+
+// Exportar a Excel (abre el Sheet directamente)
+btnExportar.addEventListener("click", () => {
+  window.open(sheetURL, "_blank");
+});
+
+// Recargar
+btnRecargar.addEventListener("click", cargarBoletas);
+window.addEventListener("load", cargarBoletas);
