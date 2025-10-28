@@ -13,41 +13,63 @@ const filtroEstado = document.getElementById("filtroEstado");
 
 let todasLasBoletas = [];
 
-// Registrar boleta
+// =======================
+// Registrar boleta (POST)
+// =======================
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
+
+  // Validación simple
+  if (!data.grupo || !data.numero) {
+    mensaje.textContent = "⚠️ Debes llenar Grupo y Número.";
+    return;
+  }
+  data.numero = Number(data.numero) || 0;
+
   mensaje.textContent = "Registrando...";
+
   try {
     const res = await fetch(scriptURL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" }, // ✅ corregido
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
     const result = await res.json();
-    mensaje.textContent = result.message || "✅ Boleta registrada.";
-    form.reset();
-    cargarBoletas();
+
+    if (result.error) {
+      mensaje.textContent = "⚠️ " + result.error;
+    } else {
+      mensaje.textContent = result.message || "✅ Boleta registrada.";
+      form.reset();
+      cargarBoletas();
+    }
   } catch (err) {
     console.error(err);
-    mensaje.textContent = "⚠️ Error al registrar.";
+    mensaje.textContent = "⚠️ Error al registrar. Revisa la consola.";
   }
 });
 
-// Cargar boletas
+// =======================
+// Cargar boletas (GET)
+// =======================
 async function cargarBoletas() {
   tablaBody.innerHTML = "<tr><td colspan='9'>Cargando...</td></tr>";
   try {
     const res = await fetch(scriptURL);
+    if (!res.ok) throw new Error("No se pudo obtener la información.");
     todasLasBoletas = await res.json();
     mostrarBoletas(todasLasBoletas);
   } catch (err) {
     console.error(err);
     tablaBody.innerHTML = "<tr><td colspan='9'>⚠️ Error al cargar datos</td></tr>";
+    mensaje.textContent = "⚠️ Error al cargar datos. Revisa la consola.";
   }
 }
 
+// =======================
 // Mostrar boletas en tabla
+// =======================
 function mostrarBoletas(data) {
   tablaBody.innerHTML = "";
   const g = filtroGrupo.value.toLowerCase();
@@ -55,7 +77,7 @@ function mostrarBoletas(data) {
   const e = filtroEstado.value;
 
   const filtradas = data.filter(r =>
-    r.grupo.toLowerCase().includes(g) &&
+    r.grupo?.toLowerCase().includes(g) &&
     (t ? r.tipo === t : true) &&
     (e ? r.estado === e : true)
   );
@@ -87,20 +109,23 @@ function mostrarBoletas(data) {
   });
 }
 
-// Filtros
+// =======================
+// Filtros en tiempo real
+// =======================
 [filtroGrupo, filtroTipo, filtroEstado].forEach(el =>
   el.addEventListener("input", () => mostrarBoletas(todasLasBoletas))
 );
 
-// Exportar a Excel (abre el Sheet directamente)
+// =======================
+// Botones de acción
+// =======================
 btnExportar.addEventListener("click", () => {
   window.open(sheetURL, "_blank");
 });
 
-// Recargar
 btnRecargar.addEventListener("click", cargarBoletas);
 
+// =======================
 // Cargar tabla al iniciar
+// =======================
 window.addEventListener("load", cargarBoletas);
-
-
