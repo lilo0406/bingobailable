@@ -1,7 +1,4 @@
-// =======================
-// CONFIGURACIÓN
-// =======================
-const scriptURL = "https://script.google.com/macros/s/AKfycbx9b0IWIYrU-luq3wjPKij6Q_ldUB8st0iW6CX37to1R1TPNzhoJHxeMwiT7KwE5dh0KA/exec";
+const scriptURL = "TU_URL_DE_APPS_SCRIPT_AQUI";
 const sheetURL  = "https://docs.google.com/spreadsheets/d/1mGoGQXWjT3_fb2d271m8kXG8PfsLG3iD_ZLelYXWjf0/edit?gid=0#gid=0";
 
 const form = document.getElementById("boletaForm");
@@ -17,21 +14,11 @@ const filtroEstado = document.getElementById("filtroEstado");
 let todasLasBoletas = [];
 
 // =======================
-// HELPER: usar proxy AllOrigins
-// =======================
-function fetchConProxy(url, options = {}) {
-  const proxyURL = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-  return fetch(proxyURL, options);
-}
-
-// =======================
-// REGISTRAR BOLETA (POST)
+// Registrar boleta (POST)
 // =======================
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
-
-  // Validación simple
   if (!data.grupo || !data.numero) {
     mensaje.textContent = "⚠️ Debes llenar Grupo y Número.";
     return;
@@ -47,11 +34,8 @@ form.addEventListener("submit", async (e) => {
       body: JSON.stringify(data)
     });
     const result = await res.json();
-
-    if (result.error) {
-      mensaje.textContent = "⚠️ " + result.error;
-    } else {
-      mensaje.textContent = result.message || "✅ Boleta registrada.";
+    mensaje.textContent = result.error ? "⚠️ " + result.error : result.message;
+    if (!result.error) {
       form.reset();
       cargarBoletas();
     }
@@ -62,13 +46,12 @@ form.addEventListener("submit", async (e) => {
 });
 
 // =======================
-// CARGAR BOLETAS (GET)
+// Cargar boletas (GET)
 // =======================
 async function cargarBoletas() {
   tablaBody.innerHTML = "<tr><td colspan='9'>Cargando...</td></tr>";
   try {
-    // Usar proxy para evitar CORS
-    const res = await fetchConProxy(scriptURL);
+    const res = await fetch(scriptURL);
     if (!res.ok) throw new Error("No se pudo obtener la información.");
     todasLasBoletas = await res.json();
     mostrarBoletas(todasLasBoletas);
@@ -80,7 +63,7 @@ async function cargarBoletas() {
 }
 
 // =======================
-// MOSTRAR BOLETAS EN TABLA
+// Mostrar boletas en tabla
 // =======================
 function mostrarBoletas(data) {
   tablaBody.innerHTML = "";
@@ -122,22 +105,21 @@ function mostrarBoletas(data) {
 }
 
 // =======================
-// FILTROS EN TIEMPO REAL
+// Filtros en tiempo real
 // =======================
 [filtroGrupo, filtroTipo, filtroEstado].forEach(el =>
   el.addEventListener("input", () => mostrarBoletas(todasLasBoletas))
 );
 
 // =======================
-// BOTONES DE ACCIÓN
+// Botones de acción
 // =======================
 btnExportar.addEventListener("click", () => {
   window.open(sheetURL, "_blank");
 });
-
 btnRecargar.addEventListener("click", cargarBoletas);
 
 // =======================
-// CARGAR TABLA AL INICIAR
+// Cargar tabla al iniciar
 // =======================
 window.addEventListener("load", cargarBoletas);
