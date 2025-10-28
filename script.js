@@ -1,5 +1,5 @@
 const scriptURL = "https://script.google.com/macros/s/AKfycbx9b0IWIYrU-luq3wjPKij6Q_ldUB8st0iW6CX37to1R1TPNzhoJHxeMwiT7KwE5dh0KA/exec";
-const sheetURL  = "https://docs.google.com/spreadsheets/d/1kXXXXXXXXXXXXXX/edit#gid=0"; // <- pega aquí el enlace de tu hoja
+const sheetURL  = "https://docs.google.com/spreadsheets/d/AKfycbx9b0IWIYrU-luq3wjPKij6Q_ldUB8st0iW6CX37to1R1TPNzhoJHxeMwiT7KwE5dh0KA/edit#gid=0"; // <- pega aquí el enlace de tu hoja
 
 const form = document.getElementById("boletaForm");
 const mensaje = document.getElementById("mensaje");
