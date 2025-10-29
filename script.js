@@ -33,6 +33,7 @@ form.addEventListener("submit", async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
+    if (!res.ok) throw new Error("Error en la respuesta del servidor.");
     const result = await res.json();
     mensaje.textContent = result.error ? "⚠️ " + result.error : result.message;
     if (!result.error) {
@@ -40,8 +41,8 @@ form.addEventListener("submit", async (e) => {
       cargarBoletas();
     }
   } catch (err) {
-    console.error(err);
-    mensaje.textContent = "⚠️ Error al registrar. Revisa la consola.";
+    console.error("Error en fetch POST:", err);
+    mensaje.textContent = "⚠️ Error al conectar con el servidor. Revisa la consola.";
   }
 });
 
@@ -55,6 +56,7 @@ async function cargarBoletas() {
     if (!res.ok) throw new Error("No se pudo obtener la información.");
     todasLasBoletas = await res.json();
     mostrarBoletas(todasLasBoletas);
+    mensaje.textContent = "";
   } catch (err) {
     console.error("Error al cargar datos:", err);
     tablaBody.innerHTML = "<tr><td colspan='9'>⚠️ Error al cargar datos</td></tr>";
