@@ -1,6 +1,6 @@
 // === CONFIGURACIÓN DE AIRTABLE ===
 const AIRTABLE_BASE_ID = "appIKMp7KAYZPfmgX";
-const AIRTABLE_TABLE = "Listado de boletas"; // usa exactamente el nombre de tu tabla en Airtable
+const AIRTABLE_TABLE = "Listado de boletas"; // Nombre exacto de la tabla
 const AIRTABLE_TOKEN = "patxKJLnk8XGcJ5HW.f6093a2b1ac7a85b7bac052ee19692ddc6992a07cd34134a4b873de8be32b6ea";
 
 // === GUARDAR BOLETA ===
@@ -77,3 +77,4 @@ async function cargarBoletas() {
 
 // === INICIAR ===
 document.addEventListener("DOMContentLoaded", cargarBoletas);
+
