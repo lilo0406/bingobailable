@@ -57,3 +57,21 @@ async function cargarBoletas() {
       const f = record.fields;
       const row = `
         <tr>
+          <td>${f.Grupo || ""}</td>
+          <td>${f.Numero || ""}</td>
+          <td>${f.Comprador || ""}</td>
+          <td>${f.Telefono || ""}</td>
+          <td>${f.Vendedor || ""}</td>
+          <td>${f.Estado || ""}</td>
+          <td>${f.Tipo || ""}</td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+  } catch (err) {
+    console.error("Error al cargar:", err);
+    alert("❌ Error al obtener datos");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", cargarBoletas);
