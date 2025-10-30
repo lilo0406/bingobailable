@@ -31,6 +31,7 @@ document.getElementById("boletaForm").addEventListener("submit", async (e) => {
     });
 
     if (!resp.ok) throw new Error("Error al guardar los datos");
+
     alert("✅ Boleta registrada correctamente");
     form.reset();
     cargarBoletas();
