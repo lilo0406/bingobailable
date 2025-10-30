@@ -1,148 +1,70 @@
-/******************************************************
- * SISTEMA DE BOLETAS CON AIRTABLE - GITHUB HOSTING
- * ----------------------------------------------------
- * Conecta tu formulario HTML con Airtable sin servidor.
- * Creado para el proyecto "BingoBoletas"
- ******************************************************/
+// === CONFIGURACIÓN ===
+const AIRTABLE_TOKEN = "patxKJLnk8XGcJ5HW.f6093a2b1ac7a85b7bac052ee19692ddc6992a07cd34134a4b873de8be32b6ea";
+const BASE_ID = "appIKMp7KAYZPfmgX"; // ID de tu base
+const TABLE_NAME = "Listado de boletas"; // Nombre exacto de tu tabla
 
-// 🔧 CONFIGURACIÓN: Pega tus propios datos
-const AIRTABLE_TOKEN = "patxXCUwpAQQsjcPtXXXXXXXX"; // 👈 Tu token aquí (manténlo privado)
-const BASE_ID = "appIKMp7KAYZPfmgX";                // 👈 Tu ID de base
-const TABLE_NAME = "Listado de boletas";            // 👈 Nombre exacto de tu tabla en Airtable
-
-// 🚀 URL base de la API
-const API_URL = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}`;
-
-// ======= ELEMENTOS DEL DOM =======
-const form = document.getElementById("boletaForm");
-const mensaje = document.getElementById("mensaje");
-const tablaBody = document.querySelector("#tablaBoletas tbody");
-const btnRecargar = document.getElementById("recargar");
-const filtroGrupo = document.getElementById("filtroGrupo");
-const filtroTipo = document.getElementById("filtroTipo");
-const filtroEstado = document.getElementById("filtroEstado");
-
-let todasLasBoletas = [];
-
-// ======= FUNCIÓN: Registrar nueva boleta =======
-form.addEventListener("submit", async (e) => {
+// === GUARDAR FORMULARIO ===
+document.querySelector("form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const formData = new FormData(form);
-  const data = Object.fromEntries(formData.entries());
-
-  if (!data.grupo || !data.numero) {
-    mensaje.textContent = "⚠️ Debes llenar Grupo y Número.";
-    return;
-  }
-
-  mensaje.textContent = "Guardando en Airtable...";
+  const datos = {
+    fields: {
+      grupo: document.getElementById("grupo").value,
+      numero: document.getElementById("numero").value,
+      comprador: document.getElementById("comprador").value,
+      telefono: document.getElementById("telefono").value,
+      vendedor: document.getElementById("vendedor").value,
+      estado: document.getElementById("estado").value,
+      tipo: document.getElementById("tipo").value,
+      fecha: new Date().toISOString()
+    }
+  };
 
   try {
-    const res = await fetch(API_URL, {
+    const response = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${AIRTABLE_TOKEN}`,
+        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        fields: {
-          "Grupo": data.grupo,
-          "Número": Number(data.numero),
-          "Comprador": data.comprador,
-          "Teléfono": data.telefono,
-          "Vendedor": data.vendedor,
-          "Estado": data.estado,
-          "Tipo": data.tipo,
-          "Fecha": new Date().toISOString()
-        }
-      })
+      body: JSON.stringify(datos)
     });
 
-    const result = await res.json();
-    if (result.error) throw new Error(result.error.message);
-
-    mensaje.textContent = "✅ Boleta guardada correctamente";
-    form.reset();
-    cargarBoletas();
-
-  } catch (err) {
-    console.error("Error:", err);
-    mensaje.textContent = "❌ Error al guardar en Airtable";
+    if (!response.ok) throw new Error("Error al guardar en Airtable");
+    alert("✅ Boleta guardada correctamente");
+    e.target.reset();
+  } catch (error) {
+    console.error("Error:", error);
+    alert("❌ Hubo un problema al guardar la boleta");
   }
 });
 
-// ======= FUNCIÓN: Cargar boletas existentes =======
+// === CARGAR BOLETAS ===
 async function cargarBoletas() {
-  tablaBody.innerHTML = "<tr><td colspan='9'>Cargando...</td></tr>";
-
   try {
-    const res = await fetch(API_URL, {
-      headers: { "Authorization": `Bearer ${AIRTABLE_TOKEN}` }
+    const response = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}`, {
+      headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
     });
-    const data = await res.json();
+    const data = await response.json();
 
-    todasLasBoletas = data.records.map(r => ({
-      id: r.id,
-      grupo: r.fields.Grupo || "",
-      numero: r.fields.Número || "",
-      comprador: r.fields.Comprador || "",
-      telefono: r.fields.Teléfono || "",
-      vendedor: r.fields.Vendedor || "",
-      estado: r.fields.Estado || "",
-      tipo: r.fields.Tipo || "",
-      fecha: r.fields.Fecha ? new Date(r.fields.Fecha).toLocaleString() : ""
-    }));
+    if (!data.records) throw new Error("No hay registros");
 
-    mostrarBoletas(todasLasBoletas);
-    mensaje.textContent = "✅ Datos cargados correctamente";
-  } catch (err) {
-    console.error("Error al cargar:", err);
-    tablaBody.innerHTML = "<tr><td colspan='9'>⚠️ Error al cargar datos</td></tr>";
-    mensaje.textContent = "❌ No se pudieron obtener los datos";
+    const contenedor = document.getElementById("boletas");
+    contenedor.innerHTML = data.records.map(record => `
+      <tr>
+        <td>${record.fields.grupo || ""}</td>
+        <td>${record.fields.numero || ""}</td>
+        <td>${record.fields.comprador || ""}</td>
+        <td>${record.fields.telefono || ""}</td>
+        <td>${record.fields.vendedor || ""}</td>
+        <td>${record.fields.estado || ""}</td>
+        <td>${record.fields.tipo || ""}</td>
+      </tr>
+    `).join("");
+  } catch (error) {
+    console.error("Error al cargar:", error);
   }
 }
 
-// ======= FUNCIÓN: Mostrar boletas en tabla =======
-function mostrarBoletas(data) {
-  tablaBody.innerHTML = "";
-
-  const g = filtroGrupo.value.toLowerCase();
-  const t = filtroTipo.value;
-  const e = filtroEstado.value;
-
-  const filtradas = data.filter(r =>
-    r.grupo.toLowerCase().includes(g) &&
-    (t ? r.tipo === t : true) &&
-    (e ? r.estado === e : true)
-  );
-
-  if (!filtradas.length) {
-    tablaBody.innerHTML = "<tr><td colspan='9'>No hay resultados</td></tr>";
-    return;
-  }
-
-  filtradas.forEach(r => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${r.id}</td>
-      <td>${r.grupo}</td>
-      <td>${r.numero}</td>
-      <td>${r.comprador}</td>
-      <td>${r.telefono}</td>
-      <td>${r.vendedor}</td>
-      <td>${r.estado}</td>
-      <td>${r.tipo}</td>
-      <td>${r.fecha}</td>
-    `;
-    tablaBody.appendChild(tr);
-  });
-}
-
-// ======= EVENTOS =======
-[filtroGrupo, filtroTipo, filtroEstado].forEach(el =>
-  el.addEventListener("input", () => mostrarBoletas(todasLasBoletas))
-);
-
-btnRecargar.addEventListener("click", cargarBoletas);
-window.addEventListener("load", cargarBoletas);
+// Si tienes un botón o evento para cargar:
+document.getElementById("btnCargar").addEventListener("click", cargarBoletas);
