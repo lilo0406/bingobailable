@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Boletas Bingo</title>
+  <title>Bingo Boletas - Registro</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,7 +19,7 @@
       <div class="form-group"><label>Estado</label>
         <select name="estado"><option>Sí</option><option>No</option></select>
       </div>
-      <div class="form-group"><label>Tipo</label>
+      <div class="form-group"><label>Tipo de Boleta</label>
         <select name="tipo">
           <option>Comprada</option><option>Regalada</option><option>Debe</option>
         </select>
@@ -27,30 +27,14 @@
       <button type="submit">Registrar Boleta</button>
     </form>
 
-    <div class="actions">
-      <button id="exportar">📤 Exportar a Excel</button>
-      <button id="recargar">🔄 Actualizar Tabla</button>
-    </div>
     <div id="mensaje"></div>
 
     <h2>📋 Boletas Registradas</h2>
-    <div class="filters">
-      <input id="filtroGrupo" placeholder="Filtrar por grupo">
-      <select id="filtroTipo">
-        <option value="">Todos los tipos</option>
-        <option>Comprada</option><option>Regalada</option><option>Debe</option>
-      </select>
-      <select id="filtroEstado">
-        <option value="">Todos los estados</option>
-        <option>Sí</option><option>No</option>
-      </select>
-    </div>
-
     <table id="tablaBoletas">
       <thead>
         <tr>
-          <th>ID</th><th>Grupo</th><th>Número</th><th>Comprador</th>
-          <th>Teléfono</th><th>Vendedor</th><th>Estado</th><th>Tipo</th><th>Fecha</th>
+          <th>Grupo</th><th>Número</th><th>Comprador</th><th>Teléfono</th>
+          <th>Vendedor</th><th>Estado</th><th>Tipo</th>
         </tr>
       </thead>
       <tbody></tbody>
