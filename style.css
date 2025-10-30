@@ -1,45 +1,125 @@
+/* === ESTILOS GENERALES === */
 body {
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #f7f9fb;
+  font-family: "Poppins", sans-serif;
+  background: #f3f6fb;
+  color: #333;
   margin: 0;
+  padding: 0;
 }
+
 .container {
-  max-width: 950px;
+  max-width: 900px;
   margin: 40px auto;
   background: #fff;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 3px 10px rgba(0,0,0,.1);
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 30px 40px;
 }
-h1, h2 { text-align: center; color: #333; }
+
+h1, h2 {
+  text-align: center;
+  color: #1a237e;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-top: 0;
+}
+
+/* === FORMULARIO === */
 form {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
 }
-.form-group { display: flex; flex-direction: column; }
-label { font-weight: 600; margin-bottom: 4px; }
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #555;
+}
+
 input, select {
-  padding: 7px; border: 1px solid #ccc; border-radius: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
 }
+
+input:focus, select:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 4px rgba(26, 115, 232, 0.3);
+}
+
+/* === BOTÓN === */
 button {
-  background: #0077cc; color: #fff; border: none;
-  padding: 9px 15px; border-radius: 6px; cursor: pointer;
-}
-button:hover { background: #005fa3; }
-.actions { display: flex; gap: 10px; margin-top: 15px; }
-#mensaje { text-align: center; font-weight: bold; margin-top: 10px; }
-
-.filters {
-  display: flex; gap: 10px; margin: 15px 0; justify-content: center;
-}
-.filters input, .filters select {
-  padding: 6px; border-radius: 5px; border: 1px solid #ccc;
+  grid-column: 1 / -1;
+  padding: 12px 0;
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
+button:hover {
+  background-color: #155ac4;
+}
+
+/* === MENSAJE DE ESTADO === */
+#mensaje {
+  text-align: center;
+  font-weight: 600;
+  margin-top: 10px;
+  color: #1a237e;
+}
+
+/* === TABLA DE BOLETAS === */
 table {
-  width: 100%; border-collapse: collapse; font-size: 14px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow: hidden;
 }
-th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-th { background: #f2f2f2; }
-tr:nth-child(even) { background: #fafafa; }
+
+thead {
+  background-color: #1a73e8;
+  color: white;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+tbody tr:hover {
+  background-color: #f5f8ff;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 20px;
+  }
+
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  button {
+    font-size: 15px;
+  }
+}
