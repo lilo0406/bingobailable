@@ -11,19 +11,48 @@
     <h1>🎟️ Registro de Boletas Bingo</h1>
 
     <form id="boletaForm">
-      <div class="form-group"><label>Grupo</label><input name="grupo" required></div>
-      <div class="form-group"><label>Número</label><input name="numero" type="number" required></div>
-      <div class="form-group"><label>Comprador</label><input name="comprador"></div>
-      <div class="form-group"><label>Teléfono</label><input name="telefono"></div>
-      <div class="form-group"><label>Vendedor</label><input name="vendedor"></div>
-      <div class="form-group"><label>Estado</label>
-        <select name="estado"><option>Sí</option><option>No</option></select>
+      <div class="form-group">
+        <label>Grupo</label>
+        <input name="grupo" required>
       </div>
-      <div class="form-group"><label>Tipo de Boleta</label>
-        <select name="tipo">
-          <option>Comprada</option><option>Regalada</option><option>Debe</option>
+
+      <div class="form-group">
+        <label>Número</label>
+        <input name="numero" type="number" required>
+      </div>
+
+      <div class="form-group">
+        <label>Comprador</label>
+        <input name="comprador">
+      </div>
+
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input name="telefono">
+      </div>
+
+      <div class="form-group">
+        <label>Vendedor</label>
+        <input name="vendedor">
+      </div>
+
+      <div class="form-group">
+        <label>Estado</label>
+        <select name="estado">
+          <option value="Sí">Sí</option>
+          <option value="No">No</option>
         </select>
       </div>
+
+      <div class="form-group">
+        <label>Tipo de Boleta</label>
+        <select name="tipo">
+          <option value="Comprada">Comprada</option>
+          <option value="Regalada">Regalada</option>
+          <option value="Debe">Debe</option>
+        </select>
+      </div>
+
       <button type="submit">Registrar Boleta</button>
     </form>
 
@@ -33,8 +62,13 @@
     <table id="tablaBoletas">
       <thead>
         <tr>
-          <th>Grupo</th><th>Número</th><th>Comprador</th><th>Teléfono</th>
-          <th>Vendedor</th><th>Estado</th><th>Tipo</th>
+          <th>Grupo</th>
+          <th>Número</th>
+          <th>Comprador</th>
+          <th>Teléfono</th>
+          <th>Vendedor</th>
+          <th>Estado</th>
+          <th>Tipo</th>
         </tr>
       </thead>
       <tbody></tbody>
