@@ -1,105 +1,93 @@
-// === CONFIGURACIÓN ===
-const API_URL = "https://api.airtable.com/v0/appIKMp7KAYZPfmgX/Listado%20de%20boletas";
-const API_KEY = "patxKJLnk8XGcJ5HW.f6093a2b1ac7a85b7bac052ee19692ddc6992a07cd34134a4b873de8be32b6ea";
+// === CONFIGURACIÓN DE AIRTABLE ===
+const AIRTABLE_BASE = "appIKMp7KAYZPfmgX"; // Tu Base ID
+const AIRTABLE_TABLE = "Listado de boletas"; // Nombre exacto de tu tabla
+const AIRTABLE_TOKEN = "patxKJLnk8XGcJ5HW.f6093a2b1ac7a85b7bac052ee19692ddc6992a07cd34134a4b873de8be32b6ea"; // Tu token personal
 
-// === REFERENCIAS A ELEMENTOS ===
 const form = document.getElementById("boletaForm");
 const mensaje = document.getElementById("mensaje");
-const tabla = document.getElementById("tablaBoletas").querySelector("tbody");
+const tablaBody = document.querySelector("#tablaBoletas tbody");
 
-// === ENVIAR FORMULARIO ===
+// === REGISTRAR BOLETA (POST) ===
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const data = Object.fromEntries(new FormData(form).entries());
 
-  const data = {
-    fields: {
-      grupo: form.grupo.value.trim(),
-      numero: form.numero.value.trim(),
-      comprador: form.comprador.value.trim(),
-      telefono: form.telefono.value.trim(),
-      vendedor: form.vendedor.value.trim(),
-      estado: form.estado.value,
-      tipo: form.tipo.value
-    }
-  };
+  mensaje.textContent = "Guardando boleta...";
 
   try {
-    const response = await fetch(API_URL, {
+    const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent(AIRTABLE_TABLE)}`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${API_KEY}`,
+        "Authorization": `Bearer ${AIRTABLE_TOKEN}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify({
+        fields: {
+          Grupo: data.grupo,
+          Número: Number(data.numero),
+          Comprador: data.comprador,
+          Teléfono: data.telefono,
+          Vendedor: data.vendedor,
+          Estado: data.estado,
+          Tipo: data.tipo
+        }
+      })
     });
 
-    if (!response.ok) throw new Error("Error al guardar los datos");
-    const result = await response.json();
-
-    mensaje.textContent = "✅ Boleta registrada correctamente";
-    mensaje.style.color = "green";
+    if (!res.ok) throw new Error("Error al guardar los datos");
+    mensaje.textContent = "✅ Boleta guardada correctamente";
     form.reset();
-    cargarBoletas(); // Actualizar lista
-  } catch (error) {
-    console.error("Error:", error);
-    mensaje.textContent = "❌ Error al registrar la boleta";
-    mensaje.style.color = "red";
+    cargarBoletas();
+
+  } catch (err) {
+    console.error("Error:", err);
+    mensaje.textContent = "⚠️ Error al guardar los datos";
   }
 });
 
-// === CARGAR BOLETAS ===
+// === CARGAR BOLETAS (GET) ===
 async function cargarBoletas() {
-  try {
-    const response = await fetch(API_URL, {
-      headers: { "Authorization": `Bearer ${API_KEY}` }
-    });
-
-    if (!response.ok) throw new Error("Error al obtener datos");
-
-    const data = await response.json();
-    tabla.innerHTML = data.records.map(r => `
-      <tr>
-        <td>${r.fields.grupo || ""}</td>
-        <td>${r.fields.numero || ""}</td>
-        <td>${r.fields.comprador || ""}</td>
-        <td>${r.fields.telefono || ""}</td>
-        <td>${r.fields.vendedor || ""}</td>
-        <td>${r.fields.estado || ""}</td>
-        <td>${r.fields.tipo || ""}</td>
-        <td><button onclick="eliminarBoleta('${r.id}')">🗑️ Eliminar</button></td>
-      </tr>
-    `).join("");
-
-  } catch (error) {
-    console.error("Error al cargar:", error);
-    mensaje.textContent = "⚠️ Error al cargar las boletas.";
-    mensaje.style.color = "orange";
-  }
-}
-
-// === ELIMINAR BOLETA ===
-async function eliminarBoleta(id) {
-  if (!confirm("¿Seguro que deseas eliminar esta boleta? ❌")) return;
+  tablaBody.innerHTML = "<tr><td colspan='7'>Cargando...</td></tr>";
 
   try {
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: "DELETE",
-      headers: { "Authorization": `Bearer ${API_KEY}` }
+    const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent(AIRTABLE_TABLE)}`, {
+      headers: {
+        "Authorization": `Bearer ${AIRTABLE_TOKEN}`
+      }
     });
 
-    if (response.ok) {
-      alert("Boleta eliminada correctamente 🗑️");
-      cargarBoletas();
-    } else {
-      const err = await response.json();
-      console.error("Error al eliminar:", err);
-      alert("⚠️ No se pudo eliminar la boleta.");
+    if (!res.ok) throw new Error("Error al obtener datos");
+
+    const data = await res.json();
+    const records = data.records || [];
+
+    tablaBody.innerHTML = "";
+
+    if (records.length === 0) {
+      tablaBody.innerHTML = "<tr><td colspan='7'>Sin registros</td></tr>";
+      return;
     }
-  } catch (error) {
-    console.error("Error:", error);
-    alert("❌ Error al conectar con Airtable.");
+
+    records.forEach(r => {
+      const f = r.fields;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${f.Grupo || ""}</td>
+        <td>${f.Número || ""}</td>
+        <td>${f.Comprador || ""}</td>
+        <td>${f.Teléfono || ""}</td>
+        <td>${f.Vendedor || ""}</td>
+        <td>${f.Estado || ""}</td>
+        <td>${f.Tipo || ""}</td>
+      `;
+      tablaBody.appendChild(tr);
+    });
+
+  } catch (err) {
+    console.error("Error al cargar:", err);
+    mensaje.textContent = "⚠️ Error al cargar los datos";
   }
 }
 
-// === CARGAR AUTOMÁTICAMENTE LAS BOLETAS AL INICIO ===
+// === CARGAR AUTOMÁTICAMENTE AL INICIAR ===
 document.addEventListener("DOMContentLoaded", cargarBoletas);
